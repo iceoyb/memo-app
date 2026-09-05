@@ -336,11 +336,23 @@ const DB_KEY = 'memo_app_data_v1';
 let memos = [];
 let currentFilter = 'all';
 
+const DEFAULT_MEMOS = [
+  { content: '宝宝推车', tags: ['宝宝', '购物'], category: '生活' },
+  { content: '叶酸', tags: ['备孕', '健康'], category: '生活' },
+];
+
 // 加载数据
 function loadMemos() {
   try {
     const data = localStorage.getItem(DB_KEY);
-    memos = data ? JSON.parse(data) : [];
+    memos = data ? JSON.parse(data) : DEFAULT_MEMOS.map((m, i) => ({
+      id: 'init_' + i,
+      ...m,
+      pinned: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }));
+    if (!data) saveMemos();
   } catch (e) {
     memos = [];
   }
