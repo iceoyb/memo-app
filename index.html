@@ -5,13 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>备忘工具</title>
 <style>
+:root {
+  --bg-grad-1: #667eea;
+  --bg-grad-2: #764ba2;
+  --card-bg: #ffffff;
+  --text-primary: #333;
+  --text-secondary: #999;
+  --text-tertiary: #aaa;
+  --border-color: #e8e8e8;
+  --tag-bg: #eef2ff;
+  --tag-text: #6366f1;
+  --btn-bg: #f3f4f6;
+  --btn-hover: #e5e7eb;
+  --pin-color: #f59e0b;
+  --delete-color: #ef4444;
+  --delete-bg: #fef2f2;
+  --input-bg: rgba(255,255,255,0.9);
+  --filter-bg: rgba(255,255,255,0.25);
+  --filter-active-bg: white;
+  --filter-active-text: #667eea;
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.1);
+  --shadow-input: 0 10px 40px rgba(0,0,0,0.15);
+  --pinned-bg: linear-gradient(to right, #fef3c7 0%, white 20%);
+  --pinned-border: #f59e0b;
+  --done-text: #bbb;
+  --checkbox-bg: #e8e8e8;
+  --checkbox-checked: #10b981;
+}
+
+[data-theme="dark"] {
+  --bg-grad-1: #1a1a2e;
+  --bg-grad-2: #16213e;
+  --card-bg: #2a2a3e;
+  --text-primary: #e5e5e5;
+  --text-secondary: #888;
+  --text-tertiary: #666;
+  --border-color: #3a3a4e;
+  --tag-bg: #3a3a5e;
+  --tag-text: #a5b4fc;
+  --btn-bg: #3a3a4e;
+  --btn-hover: #4a4a5e;
+  --input-bg: rgba(255,255,255,0.1);
+  --filter-bg: rgba(255,255,255,0.1);
+  --filter-active-bg: #a5b4fc;
+  --filter-active-text: #1a1a2e;
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.3);
+  --shadow-input: 0 10px 40px rgba(0,0,0,0.3);
+  --pinned-bg: linear-gradient(to right, #3a3a2e 0%, #2a2a3e 20%);
+  --pinned-border: #f59e0b;
+  --done-text: #555;
+  --checkbox-bg: #3a3a4e;
+  --checkbox-checked: #10b981;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
   min-height: 100vh;
   padding: 20px;
+  transition: background 0.3s;
 }
 
 .container {
@@ -36,18 +90,38 @@ header p {
   font-size: 0.9rem;
 }
 
+.theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.theme-toggle:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.05);
+}
+
 .input-section {
-  background: white;
+  background: var(--card-bg);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-input);
+  transition: background 0.3s;
 }
 
 .input-section textarea {
   width: 100%;
   min-height: 100px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--border-color);
   border-radius: 10px;
   padding: 12px 14px;
   font-size: 1rem;
@@ -55,10 +129,20 @@ header p {
   resize: vertical;
   outline: none;
   transition: border-color 0.2s;
+  background: var(--card-bg);
+  color: var(--text-primary);
 }
 
 .input-section textarea:focus {
-  border-color: #667eea;
+  border-color: var(--bg-grad-1);
+}
+
+.draft-hint {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  text-align: right;
+  height: 16px;
 }
 
 .input-row {
@@ -73,20 +157,22 @@ header p {
   flex: 1;
   min-width: 120px;
   padding: 10px 12px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.2s;
+  background: var(--card-bg);
+  color: var(--text-primary);
 }
 
 .input-row select:focus,
 .input-row input[type="text"]:focus {
-  border-color: #667eea;
+  border-color: var(--bg-grad-1);
 }
 
 .btn-add {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2));
   color: white;
   border: none;
   padding: 10px 24px;
@@ -115,6 +201,12 @@ header p {
   gap: 10px;
 }
 
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .filter-tags {
   display: flex;
   gap: 8px;
@@ -122,7 +214,7 @@ header p {
 }
 
 .filter-tag {
-  background: rgba(255,255,255,0.25);
+  background: var(--filter-bg);
   color: white;
   padding: 6px 14px;
   border-radius: 20px;
@@ -130,6 +222,7 @@ header p {
   cursor: pointer;
   border: 1px solid rgba(255,255,255,0.3);
   transition: all 0.2s;
+  user-select: none;
 }
 
 .filter-tag:hover {
@@ -137,9 +230,14 @@ header p {
 }
 
 .filter-tag.active {
-  background: white;
-  color: #667eea;
+  background: var(--filter-active-bg);
+  color: var(--filter-active-text);
   font-weight: 500;
+}
+
+.stats {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.85rem;
 }
 
 .search-box {
@@ -153,9 +251,10 @@ header p {
   padding: 8px 14px 8px 36px;
   border: none;
   border-radius: 20px;
-  background: rgba(255,255,255,0.9);
+  background: var(--input-bg);
   font-size: 0.85rem;
   outline: none;
+  color: var(--text-primary);
 }
 
 .search-box::before {
@@ -167,11 +266,6 @@ header p {
   font-size: 0.8rem;
 }
 
-.stats {
-  color: rgba(255,255,255,0.85);
-  font-size: 0.85rem;
-}
-
 .memo-list {
   display: flex;
   flex-direction: column;
@@ -179,12 +273,22 @@ header p {
 }
 
 .memo-card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 16px 18px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
   animation: slideIn 0.3s ease;
+  cursor: grab;
+}
+
+.memo-card:active {
+  cursor: grabbing;
+}
+
+.memo-card.dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
 }
 
 @keyframes slideIn {
@@ -198,17 +302,65 @@ header p {
 }
 
 .memo-card.pinned {
-  border-left: 4px solid #f59e0b;
-  background: linear-gradient(to right, #fef3c7 0%, white 20%);
+  border-left: 4px solid var(--pinned-border);
+  background: var(--pinned-bg);
+}
+
+.memo-card.done .memo-content {
+  text-decoration: line-through;
+  color: var(--done-text);
+}
+
+.memo-card.done {
+  opacity: 0.7;
+}
+
+.memo-body {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.memo-checkbox {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  border: 2px solid var(--checkbox-bg);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: var(--card-bg);
+  font-size: 0.8rem;
+  color: transparent;
+}
+
+.memo-checkbox:hover {
+  border-color: var(--checkbox-checked);
+}
+
+.memo-card.done .memo-checkbox {
+  background: var(--checkbox-checked);
+  border-color: var(--checkbox-checked);
+  color: white;
+}
+
+.memo-content-wrapper {
+  flex: 1;
+  min-width: 0;
 }
 
 .memo-content {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #333;
+  color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-word;
   margin-bottom: 10px;
+  transition: color 0.2s;
 }
 
 .memo-meta {
@@ -226,8 +378,8 @@ header p {
 }
 
 .memo-tag {
-  background: #eef2ff;
-  color: #6366f1;
+  background: var(--tag-bg);
+  color: var(--tag-text);
   padding: 3px 10px;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -246,27 +398,35 @@ header p {
   font-size: 0.8rem;
   padding: 4px 8px;
   border-radius: 6px;
-  color: #999;
+  color: var(--text-secondary);
   transition: all 0.15s;
 }
 
 .memo-btn:hover {
-  background: #f3f4f6;
-  color: #333;
+  background: var(--btn-bg);
+  color: var(--text-primary);
 }
 
 .memo-btn.pin:hover {
-  color: #f59e0b;
+  color: var(--pin-color);
 }
 
 .memo-btn.delete:hover {
-  color: #ef4444;
-  background: #fef2f2;
+  color: var(--delete-color);
+  background: var(--delete-bg);
+}
+
+.drag-handle {
+  color: var(--text-tertiary);
+  cursor: grab;
+  padding: 4px 6px;
+  font-size: 0.9rem;
+  user-select: none;
 }
 
 .memo-time {
   font-size: 0.75rem;
-  color: #aaa;
+  color: var(--text-tertiary);
 }
 
 .empty-state {
@@ -284,22 +444,105 @@ header p {
   font-size: 0.95rem;
 }
 
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 12px;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.8rem;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.2);
+}
+
+.settings-menu {
+  position: relative;
+}
+
+.settings-btn {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.settings-dropdown {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  background: var(--card-bg);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  padding: 8px 0;
+  min-width: 160px;
+  z-index: 100;
+  display: none;
+}
+
+.settings-dropdown.show {
+  display: block;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-item:hover {
+  background: var(--btn-bg);
+}
+
+.settings-item.danger {
+  color: var(--delete-color);
+}
+
 @media (max-width: 600px) {
   header h1 { font-size: 1.5rem; }
   .input-row { flex-direction: column; }
   .btn-add { width: 100%; }
+  .theme-toggle { top: 12px; right: 12px; width: 36px; height: 36px; font-size: 1rem; }
 }
 </style>
 </head>
 <body>
 <div class="container">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌙</button>
+
   <header>
     <h1>📝 我的备忘</h1>
     <p>数据安全存储在本地浏览器中</p>
   </header>
 
   <div class="input-section">
-    <textarea id="memoInput" placeholder="写下你的备忘内容..."></textarea>
+    <textarea id="memoInput" placeholder="写下你的备忘内容...（Ctrl+Enter 快速添加）"></textarea>
+    <div class="draft-hint" id="draftHint"></div>
     <div class="input-row">
       <input type="text" id="tagInput" placeholder="标签（用逗号分隔）">
       <select id="categorySelect">
@@ -321,7 +564,20 @@ header p {
       <span class="filter-tag" data-filter="学习" onclick="setFilter('学习')">学习</span>
       <span class="filter-tag" data-filter="想法" onclick="setFilter('想法')">想法</span>
     </div>
-    <div class="stats" id="stats"></div>
+    <div class="toolbar-right">
+      <div class="stats" id="stats"></div>
+      <div class="settings-menu">
+        <button class="settings-btn" onclick="toggleSettings()" title="设置">⚙️</button>
+        <div class="settings-dropdown" id="settingsDropdown">
+          <div class="settings-item" onclick="exportData()">📤 导出数据</div>
+          <div class="settings-item" onclick="importData()">📥 导入数据</div>
+          <div class="settings-item" onclick="toggleDoneFilter()">
+            <span id="doneFilterIcon">👁️</span> <span id="doneFilterText">隐藏已完成</span>
+          </div>
+          <div class="settings-item danger" onclick="clearAllData()">🗑️ 清空所有数据</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="search-box">
@@ -331,39 +587,121 @@ header p {
   <div class="memo-list" id="memoList" style="margin-top: 20px;"></div>
 </div>
 
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImportFile(event)">
+
 <script>
-const DB_KEY = 'memo_app_data_v1';
+const DB_KEY = 'memo_app_data_v2';
+const DRAFT_KEY = 'memo_app_draft_v2';
+const THEME_KEY = 'memo_app_theme_v2';
+const DONE_HIDE_KEY = 'memo_app_hide_done_v2';
+const DRAG_ORDER_KEY = 'memo_app_order_v2';
+
 let memos = [];
 let currentFilter = 'all';
+let hideDone = false;
+let draftTimer = null;
 
 const DEFAULT_MEMOS = [
   { content: '宝宝推车', tags: ['宝宝', '购物'], category: '生活' },
   { content: '叶酸', tags: ['备孕', '健康'], category: '生活' },
 ];
 
-// 加载数据
+// ===== 数据持久化 =====
 function loadMemos() {
   try {
     const data = localStorage.getItem(DB_KEY);
-    memos = data ? JSON.parse(data) : DEFAULT_MEMOS.map((m, i) => ({
-      id: 'init_' + i,
-      ...m,
-      pinned: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }));
-    if (!data) saveMemos();
+    if (data) {
+      memos = JSON.parse(data);
+    } else {
+      memos = DEFAULT_MEMOS.map((m, i) => ({
+        id: 'init_' + i,
+        ...m,
+        pinned: false,
+        done: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        sortOrder: i
+      }));
+      saveMemos();
+    }
+    // 旧数据兼容：补 done 和 sortOrder 字段
+    let needsSave = false;
+    memos.forEach((m, i) => {
+      if (m.done === undefined) { m.done = false; needsSave = true; }
+      if (m.sortOrder === undefined) { m.sortOrder = i; needsSave = true; }
+    });
+    if (needsSave) saveMemos();
   } catch (e) {
     memos = [];
   }
 }
 
-// 保存数据
 function saveMemos() {
   localStorage.setItem(DB_KEY, JSON.stringify(memos));
 }
 
-// 添加备忘
+// ===== 主题 =====
+function loadTheme() {
+  const theme = localStorage.getItem(THEME_KEY) || 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelector('.theme-toggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem(THEME_KEY, next);
+  document.querySelector('.theme-toggle').textContent = next === 'dark' ? '☀️' : '🌙';
+}
+
+// ===== 草稿自动保存（防抖 1 秒）=====
+function saveDraft() {
+  const content = document.getElementById('memoInput').value;
+  const tags = document.getElementById('tagInput').value;
+  const category = document.getElementById('categorySelect').value;
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({ content, tags, category }));
+  document.getElementById('draftHint').textContent = '草稿已保存';
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(() => {
+    document.getElementById('draftHint').textContent = '';
+  }, 2000);
+}
+
+function loadDraft() {
+  try {
+    const data = localStorage.getItem(DRAFT_KEY);
+    if (data) {
+      const d = JSON.parse(data);
+      if (d.content) {
+        document.getElementById('memoInput').value = d.content;
+        document.getElementById('tagInput').value = d.tags || '';
+        if (d.category) document.getElementById('categorySelect').value = d.category;
+      }
+    }
+  } catch (e) {}
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT_KEY);
+  document.getElementById('draftHint').textContent = '';
+}
+
+// 输入时防抖保存草稿
+document.getElementById('memoInput').addEventListener('input', () => {
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(saveDraft, 1000);
+});
+document.getElementById('tagInput').addEventListener('input', () => {
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(saveDraft, 1000);
+});
+document.getElementById('categorySelect').addEventListener('change', () => {
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(saveDraft, 1000);
+});
+
+// ===== 添加备忘 =====
 function addMemo() {
   const content = document.getElementById('memoInput').value.trim();
   const tagStr = document.getElementById('tagInput').value.trim();
@@ -382,8 +720,10 @@ function addMemo() {
     tags,
     category,
     pinned: false,
+    done: false,
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
+    sortOrder: memos.length
   };
 
   memos.unshift(memo);
@@ -393,9 +733,21 @@ function addMemo() {
   document.getElementById('memoInput').value = '';
   document.getElementById('tagInput').value = '';
   document.getElementById('memoInput').focus();
+  clearDraft();
 }
 
-// 删除备忘
+// ===== 切换完成状态 =====
+function toggleDone(id) {
+  const memo = memos.find(m => m.id === id);
+  if (memo) {
+    memo.done = !memo.done;
+    memo.updatedAt = new Date().toISOString();
+    saveMemos();
+    renderMemos();
+  }
+}
+
+// ===== 删除备忘 =====
 function deleteMemo(id) {
   if (!confirm('确定删除这条备忘吗？')) return;
   memos = memos.filter(m => m.id !== id);
@@ -403,7 +755,7 @@ function deleteMemo(id) {
   renderMemos();
 }
 
-// 切换置顶
+// ===== 切换置顶 =====
 function togglePin(id) {
   const memo = memos.find(m => m.id === id);
   if (memo) {
@@ -414,7 +766,7 @@ function togglePin(id) {
   }
 }
 
-// 编辑备忘
+// ===== 编辑备忘 =====
 function editMemo(id) {
   const memo = memos.find(m => m.id === id);
   if (!memo) return;
@@ -428,7 +780,7 @@ function editMemo(id) {
   }
 }
 
-// 设置过滤
+// ===== 过滤 =====
 function setFilter(filter) {
   currentFilter = filter;
   document.querySelectorAll('.filter-tag').forEach(el => {
@@ -437,7 +789,145 @@ function setFilter(filter) {
   renderMemos();
 }
 
-// 格式化时间
+function toggleDoneFilter() {
+  hideDone = !hideDone;
+  localStorage.setItem(DONE_HIDE_KEY, hideDone ? '1' : '0');
+  document.getElementById('doneFilterIcon').textContent = hideDone ? '👁️‍🗨️' : '👁️';
+  document.getElementById('doneFilterText').textContent = hideDone ? '显示已完成' : '隐藏已完成';
+  renderMemos();
+  toggleSettings();
+}
+
+// ===== 设置菜单 =====
+function toggleSettings() {
+  document.getElementById('settingsDropdown').classList.toggle('show');
+}
+
+// 点击外部关闭设置菜单
+document.addEventListener('click', (e) => {
+  const menu = document.querySelector('.settings-menu');
+  if (!menu.contains(e.target)) {
+    document.getElementById('settingsDropdown').classList.remove('show');
+  }
+});
+
+// ===== 导出/导入 =====
+function exportData() {
+  const data = JSON.stringify(memos, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `memo-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toggleSettings();
+}
+
+function importData() {
+  document.getElementById('importFile').click();
+  toggleSettings();
+}
+
+function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error('格式不正确');
+
+      const count = imported.length;
+      if (!confirm(`确定要导入 ${count} 条备忘吗？\n（将与现有数据合并，重复内容会自动跳过）`)) return;
+
+      // 合并：按内容去重
+      const existingContents = new Set(memos.map(m => m.content));
+      let added = 0;
+      imported.forEach(m => {
+        if (m.content && !existingContents.has(m.content)) {
+          memos.push({
+            id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+            content: m.content,
+            tags: m.tags || [],
+            category: m.category || '普通',
+            pinned: m.pinned || false,
+            done: m.done || false,
+            createdAt: m.createdAt || new Date().toISOString(),
+            updatedAt: m.updatedAt || new Date().toISOString(),
+            sortOrder: memos.length + added
+          });
+          added++;
+        }
+      });
+
+      saveMemos();
+      renderMemos();
+      alert(`导入成功！新增 ${added} 条，跳过 ${count - added} 条重复内容`);
+    } catch (err) {
+      alert('导入失败：文件格式不正确');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAllData() {
+  if (!confirm('⚠️ 确定要清空所有备忘数据吗？\n此操作不可撤销，建议先导出备份！')) return;
+  if (!confirm('再次确认：真的要删除全部数据吗？')) return;
+  memos = [];
+  saveMemos();
+  renderMemos();
+  toggleSettings();
+}
+
+// ===== 拖拽排序 =====
+let draggedId = null;
+
+function handleDragStart(e) {
+  draggedId = e.currentTarget.dataset.id;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  draggedId = null;
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const card = e.currentTarget;
+  const list = document.getElementById('memoList');
+  const cards = [...list.querySelectorAll('.memo-card')];
+  const currentIdx = cards.indexOf(card);
+  const draggedIdx = cards.findIndex(c => c.dataset.id === draggedId);
+
+  if (draggedIdx < currentIdx) {
+    card.parentNode.insertBefore(list.querySelector(`[data-id="${draggedId}"]`), card.nextSibling);
+  } else {
+    card.parentNode.insertBefore(list.querySelector(`[data-id="${draggedId}"]`), card);
+  }
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  // 保存新顺序
+  const cards = document.querySelectorAll('.memo-card');
+  const newOrder = [...cards].map(c => c.dataset.id);
+
+  newOrder.forEach((id, idx) => {
+    const memo = memos.find(m => m.id === id);
+    if (memo) memo.sortOrder = idx;
+  });
+
+  saveMemos();
+  renderMemos();
+}
+
+// ===== 工具函数 =====
 function formatTime(isoStr) {
   const d = new Date(isoStr);
   const now = new Date();
@@ -453,14 +943,13 @@ function formatTime(isoStr) {
     String(d.getDate()).padStart(2, '0');
 }
 
-// 转义 HTML
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
 
-// 渲染列表
+// ===== 渲染 =====
 function renderMemos() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const listEl = document.getElementById('memoList');
@@ -480,14 +969,22 @@ function renderMemos() {
     );
   }
 
-  // 排序：置顶优先，然后按时间倒序
+  // 隐藏已完成
+  if (hideDone) {
+    filtered = filtered.filter(m => !m.done);
+  }
+
+  // 排序：置顶优先，然后 sortOrder 升序（用户拖拽顺序）
   filtered.sort((a, b) => {
     if (a.pinned !== b.pinned) return b.pinned - a.pinned;
-    return new Date(b.createdAt) - new Date(a.createdAt);
+    return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
   });
 
   // 更新统计
-  document.getElementById('stats').textContent = `共 ${filtered.length} 条 / 总计 ${memos.length} 条`;
+  const total = memos.length;
+  const doneCount = memos.filter(m => m.done).length;
+  document.getElementById('stats').textContent =
+    `共 ${filtered.length} 条 / 总计 ${total} 条（已完成 ${doneCount}）`;
 
   // 渲染
   if (filtered.length === 0) {
@@ -501,21 +998,33 @@ function renderMemos() {
   }
 
   listEl.innerHTML = filtered.map(m => `
-    <div class="memo-card ${m.pinned ? 'pinned' : ''}">
-      <div class="memo-content">${escapeHtml(m.content)}</div>
-      <div class="memo-meta">
-        <div class="memo-tags">
-          <span class="memo-tag">${escapeHtml(m.category)}</span>
-          ${m.tags.map(t => `<span class="memo-tag">#${escapeHtml(t)}</span>`).join('')}
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span class="memo-time">${formatTime(m.createdAt)}</span>
-          <div class="memo-actions">
-            <button class="memo-btn pin" onclick="togglePin('${m.id}')" title="置顶">
-              ${m.pinned ? '📌' : '📍'}
-            </button>
-            <button class="memo-btn" onclick="editMemo('${m.id}')" title="编辑">✏️</button>
-            <button class="memo-btn delete" onclick="deleteMemo('${m.id}')" title="删除">🗑️</button>
+    <div class="memo-card ${m.pinned ? 'pinned' : ''} ${m.done ? 'done' : ''}"
+         data-id="${m.id}"
+         draggable="true"
+         ondragstart="handleDragStart(event)"
+         ondragend="handleDragEnd(event)"
+         ondragover="handleDragOver(event)"
+         ondrop="handleDrop(event)">
+      <div class="memo-body">
+        <div class="memo-checkbox" onclick="toggleDone('${m.id}')" title="标记完成">✓</div>
+        <div class="memo-content-wrapper">
+          <div class="memo-content">${escapeHtml(m.content)}</div>
+          <div class="memo-meta">
+            <div class="memo-tags">
+              <span class="memo-tag">${escapeHtml(m.category)}</span>
+              ${m.tags.map(t => `<span class="memo-tag">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="memo-time">${formatTime(m.createdAt)}</span>
+              <div class="memo-actions">
+                <span class="drag-handle" title="拖拽排序">⋮⋮</span>
+                <button class="memo-btn pin" onclick="togglePin('${m.id}')" title="置顶">
+                  ${m.pinned ? '📌' : '📍'}
+                </button>
+                <button class="memo-btn" onclick="editMemo('${m.id}')" title="编辑">✏️</button>
+                <button class="memo-btn delete" onclick="deleteMemo('${m.id}')" title="删除">🗑️</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -523,15 +1032,25 @@ function renderMemos() {
   `).join('');
 }
 
-// 回车快捷添加（Ctrl/Cmd + Enter）
+// ===== 快捷键 =====
 document.getElementById('memoInput').addEventListener('keydown', function(e) {
+  // Ctrl/Cmd + Enter 提交
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
     addMemo();
   }
 });
 
-// 初始化
+// ===== 初始化 =====
+loadTheme();
 loadMemos();
+loadDraft();
+
+// 加载隐藏已完成设置
+hideDone = localStorage.getItem(DONE_HIDE_KEY) === '1';
+document.getElementById('doneFilterIcon').textContent = hideDone ? '👁️‍🗨️' : '👁️';
+document.getElementById('doneFilterText').textContent = hideDone ? '显示已完成' : '隐藏已完成';
+
 renderMemos();
 </script>
 </body>
