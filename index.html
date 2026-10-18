@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>备忘工具</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23667eea'/%3E%3Cpath d='M8 10h16v2H8zm0 5h16v2H8zm0 5h10v2H8z' fill='white'/%3E%3C/svg%3E">
 <style>
 :root {
   --bg-grad-1: #667eea;
@@ -559,6 +560,7 @@ header p {
   <div class="toolbar">
     <div class="filter-tags" id="filterTags">
       <span class="filter-tag active" data-filter="all" onclick="setFilter('all')">全部</span>
+      <span class="filter-tag" data-filter="普通" onclick="setFilter('普通')">普通</span>
       <span class="filter-tag" data-filter="工作" onclick="setFilter('工作')">工作</span>
       <span class="filter-tag" data-filter="生活" onclick="setFilter('生活')">生活</span>
       <span class="filter-tag" data-filter="学习" onclick="setFilter('学习')">学习</span>
@@ -674,6 +676,7 @@ function loadMemos() {
     memos.forEach((m, i) => {
       if (m.done === undefined) { m.done = false; needsSave = true; }
       if (m.sortOrder === undefined) { m.sortOrder = i; needsSave = true; }
+      if (!Array.isArray(m.tags)) { m.tags = []; needsSave = true; }
     });
     if (needsSave) saveMemos();
   } catch (e) {
@@ -705,6 +708,11 @@ function saveDraft() {
   const content = document.getElementById('memoInput').value;
   const tags = document.getElementById('tagInput').value;
   const category = document.getElementById('categorySelect').value;
+  if (!content.trim() && !tags.trim()) {
+    localStorage.removeItem(DRAFT_KEY);
+    document.getElementById('draftHint').textContent = '';
+    return;
+  }
   localStorage.setItem(DRAFT_KEY, JSON.stringify({ content, tags, category }));
   document.getElementById('draftHint').textContent = '草稿已保存';
   clearTimeout(draftTimer);
@@ -728,6 +736,8 @@ function loadDraft() {
 }
 
 function clearDraft() {
+  clearTimeout(draftTimer);
+  draftTimer = null;
   localStorage.removeItem(DRAFT_KEY);
   document.getElementById('draftHint').textContent = '';
 }
@@ -768,7 +778,7 @@ function addMemo() {
     done: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    sortOrder: memos.length
+    sortOrder: memos.reduce((min, m) => Math.min(min, m.sortOrder ?? 0), 0) - 1
   };
 
   memos.unshift(memo);
@@ -943,30 +953,41 @@ function handleDragEnd(e) {
 
 function handleDragOver(e) {
   e.preventDefault();
+  if (!draggedId) return;
   e.dataTransfer.dropEffect = 'move';
   const card = e.currentTarget;
   const list = document.getElementById('memoList');
+  const draggedEl = list.querySelector(`[data-id="${CSS.escape(draggedId)}"]`);
+  if (!draggedEl || draggedEl === card) return;
   const cards = [...list.querySelectorAll('.memo-card')];
   const currentIdx = cards.indexOf(card);
-  const draggedIdx = cards.findIndex(c => c.dataset.id === draggedId);
+  const draggedIdx = cards.indexOf(draggedEl);
+  if (draggedIdx < 0 || currentIdx < 0) return;
 
   if (draggedIdx < currentIdx) {
-    card.parentNode.insertBefore(list.querySelector(`[data-id="${draggedId}"]`), card.nextSibling);
+    card.parentNode.insertBefore(draggedEl, card.nextSibling);
   } else {
-    card.parentNode.insertBefore(list.querySelector(`[data-id="${draggedId}"]`), card);
+    card.parentNode.insertBefore(draggedEl, card);
   }
 }
 
 function handleDrop(e) {
   e.preventDefault();
-  // 保存新顺序
-  const cards = document.querySelectorAll('.memo-card');
-  const newOrder = [...cards].map(c => c.dataset.id);
+  const visibleIds = [...document.querySelectorAll('.memo-card')].map(c => c.dataset.id);
+  if (!visibleIds.length) return;
 
-  newOrder.forEach((id, idx) => {
-    const memo = memos.find(m => m.id === id);
-    if (memo) memo.sortOrder = idx;
+  const visibleSet = new Set(visibleIds);
+  const byId = new Map(memos.map(m => [m.id, m]));
+  const fullSorted = [...memos].sort((a, b) => {
+    if (!!a.pinned !== !!b.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
+    return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
   });
+  let vi = 0;
+  const merged = fullSorted.map(m => {
+    if (!visibleSet.has(m.id)) return m;
+    return byId.get(visibleIds[vi++]) || m;
+  });
+  merged.forEach((m, idx) => { m.sortOrder = idx; });
 
   saveMemos();
   renderMemos();
@@ -1010,7 +1031,7 @@ function renderMemos() {
   if (search) {
     filtered = filtered.filter(m =>
       m.content.toLowerCase().includes(search) ||
-      m.tags.some(t => t.toLowerCase().includes(search))
+      (m.tags || []).some(t => t.toLowerCase().includes(search))
     );
   }
 
@@ -1057,7 +1078,7 @@ function renderMemos() {
           <div class="memo-meta">
             <div class="memo-tags">
               <span class="memo-tag">${escapeHtml(m.category)}</span>
-              ${m.tags.map(t => `<span class="memo-tag">#${escapeHtml(t)}</span>`).join('')}
+              ${(m.tags || []).map(t => `<span class="memo-tag">#${escapeHtml(t)}</span>`).join('')}
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
               <span class="memo-time">${formatTime(m.createdAt)}</span>
