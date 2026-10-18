@@ -602,10 +602,58 @@ let hideDone = false;
 let draftTimer = null;
 
 const DEFAULT_MEMOS = [
-  { content: '宝宝推车', tags: ['宝宝', '购物'], category: '生活' },
-  { content: '叶酸', tags: ['备孕', '健康'], category: '生活' },
-  { content: '宝宝餐椅', tags: ['宝宝', '购物'], category: '生活' },
+  {
+    content: '欢迎使用备忘工具。内容只保存在当前浏览器，可随时添加、编辑或删除。右上角切换深浅色，齿轮菜单可导出或导入 JSON 备份。',
+    tags: ['入门'],
+    category: '想法',
+    pinned: true
+  },
+  {
+    content: '标签用逗号分隔，例如：周报, 待办。搜索会匹配正文和标签，顶栏可按工作、生活、学习、想法筛选。',
+    tags: ['标签', '搜索'],
+    category: '工作'
+  },
+  {
+    content: '点左侧圆圈标记完成，点定位图标置顶，拖拽卡片可调整顺序。这条是已完成示例。',
+    tags: ['完成'],
+    category: '学习',
+    done: true
+  }
 ];
+
+function contentHash(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
+  return h.toString(16);
+}
+
+// 旧版内置示例的内容摘要。仅当本地数据全部命中、且没有用户自建条目时，才换成当前示例。
+const LEGACY_SEED_HASHES = new Set(['9c5231eb', '5f21cb', '9c49cdf0']);
+
+function isLegacyPersonalSeed(list) {
+  if (!Array.isArray(list) || list.length === 0 || list.length > LEGACY_SEED_HASHES.size) return false;
+  const seen = new Set();
+  for (const m of list) {
+    if (!m || typeof m.content !== 'string') return false;
+    const hash = contentHash(m.content);
+    if (!LEGACY_SEED_HASHES.has(hash) || seen.has(hash)) return false;
+    seen.add(hash);
+  }
+  return true;
+}
+
+function createSeedMemos() {
+  const now = new Date().toISOString();
+  return DEFAULT_MEMOS.map((m, i) => ({
+    id: 'init_' + i,
+    pinned: false,
+    done: false,
+    createdAt: now,
+    updatedAt: now,
+    sortOrder: i,
+    ...m
+  }));
+}
 
 // ===== 数据持久化 =====
 function loadMemos() {
@@ -613,16 +661,12 @@ function loadMemos() {
     const data = localStorage.getItem(DB_KEY);
     if (data) {
       memos = JSON.parse(data);
+      if (isLegacyPersonalSeed(memos)) {
+        memos = createSeedMemos();
+        saveMemos();
+      }
     } else {
-      memos = DEFAULT_MEMOS.map((m, i) => ({
-        id: 'init_' + i,
-        ...m,
-        pinned: false,
-        done: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        sortOrder: i
-      }));
+      memos = createSeedMemos();
       saveMemos();
     }
     // 旧数据兼容：补 done 和 sortOrder 字段
